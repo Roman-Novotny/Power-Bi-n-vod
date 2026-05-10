@@ -1,0 +1,10 @@
+[
+  {"id": "circular-dependency", "title": "Circular Dependency", "category": "Model", "severity": "error"},
+  {"id": "ambiguous-relationship", "title": "Ambiguous Relationship", "category": "Relace", "severity": "error"},
+  {"id": "blank-values", "title": "Blank Values", "category": "Data", "severity": "warning"},
+  {"id": "relationship-error", "title": "Relationship Error", "category": "Relace", "severity": "error"},
+  {"id": "incorrect-syntax", "title": "Incorrect Syntax", "category": "DAX", "severity": "error"},
+  {"id": "division-by-zero", "title": "Division by Zero", "category": "DAX", "severity": "warning"},
+  {"id": "context-transition", "title": "Context Transition", "category": "DAX", "severity": "info"},
+  {"id": "type-mismatch", "title": "Type Mismatch", "category": "Data", "severity": "error"}
+]

@@ -1,0 +1,10 @@
+[
+  {"id": "propojeni-tabulek", "title": "Jak propojit tabulky v Power BI", "category": "Relace", "difficulty": "Začátečník"},
+  {"id": "vytvoreni-measure", "title": "Jak vytvořit Measure", "category": "Měření", "difficulty": "Začátečník"},
+  {"id": "sum-funkce", "title": "Jak používat funkci SUM", "category": "DAX funkce", "difficulty": "Začátečník"},
+  {"id": "calculate-funkce", "title": "Jak funguje CALCULATE", "category": "DAX funkce", "difficulty": "Pokročilý"},
+  {"id": "datumova-tabulka", "title": "Jak vytvořit datumovou tabulku", "category": "Kalendáře", "difficulty": "Střední"},
+  {"id": "filtrovani-dat", "title": "Jak filtrovat data", "category": "Filtry", "difficulty": "Začátečník"},
+  {"id": "relace-typy", "title": "Jak fungují relace v Power BI", "category": "Relace", "difficulty": "Střední"},
+  {"id": "ytd-vypocet", "title": "Jak vytvořit YTD výpočet", "category": "Časová inteligence", "difficulty": "Pokročilý"}
+]
