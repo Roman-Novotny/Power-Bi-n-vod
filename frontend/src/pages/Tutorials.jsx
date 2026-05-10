@@ -20,7 +20,8 @@ export default function Tutorials() {
         t.description.toLowerCase().includes(query.toLowerCase()) ||
         t.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()));
       const matchD = difficulty === 'Všechny' || t.difficulty === difficulty;
-      const matchC = !activeCat || t.tags.includes(activeCat) || t.category.toLowerCase().replace(/\s/g,'-') === activeCat;
+      const cat = categories.find(c => c.name === t.category);
+      const matchC = !activeCat || (cat && cat.id === activeCat);
       return matchQ && matchD && matchC;
     });
   }, [query, difficulty, activeCat]);
