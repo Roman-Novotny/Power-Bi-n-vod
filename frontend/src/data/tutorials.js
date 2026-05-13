@@ -1084,6 +1084,213 @@ export const tutorials = [
       },
     ],
   },
+
+  // ─── GRAFY ────────────────────────────────────────────────────────────────
+
+  {
+    id: 'pruvodce-co-kam',
+    title: 'Průvodce: Co dát kam v každém grafu',
+    category: 'grafy',
+    difficulty: 'Začátečník',
+    duration: '20 min',
+    description: 'Přehledný průvodce co přesně patří na osu X, Y, do legendy a hodnot pro každý typ grafu Power BI – s příklady polí.',
+    tags: ['osa X','osa Y','legenda','hodnoty','vizualizace','přehled','sloupcový','koláčový','spojnicový','scatter','treemap','vodopád'],
+    steps: [
+      {
+        title: 'Seskupený sloupcový graf (Clustered Column)',
+        content: 'Nejuniverzálnější graf. Porovnává hodnoty mezi kategoriemi. Každá kategorie = jeden nebo více sloupců vedle sebe.',
+        code: 'Osa X:     Oddělení[Název]            ← textová kategorie (co srovnáváš)\nHodnoty:   SUM(Objednávky[Tržba])     ← číselná metrika / míra\nLegenda:   Produkty[Kategorie]        ← barevné rozdělení skupin (volitelné)',
+        language: 'sql',
+        tip: 'Legenda přidá pro každou kategorii skupinu sloupců vedle sebe. Drž legendu na max. 5–6 hodnotách.',
+      },
+      {
+        title: 'Skládaný sloupcový graf (Stacked Column)',
+        content: 'Ukazuje složení každé kategorie — kolik z každé podskupiny tvoří daný sloupec. Ideální pro pohlaví, věkové skupiny nebo typy produktů v rámci oddělení.',
+        code: 'Osa X:     Oddělení[Název]            ← hlavní kategorie (sloupce)\nHodnoty:   COUNTROWS(Zaměstnanci)     ← co měříš (výška sloupce)\nLegenda:   Zaměstnanci[Pohlaví]       ← co tvoří barevné vrstvy sloupce',
+        language: 'sql',
+        tip: 'Příklad: "Kolik mužů a žen je v každém oddělení" → X=Oddělení, Hodnoty=COUNTROWS, Legenda=Pohlaví.',
+      },
+      {
+        title: 'Pruhový graf (Bar Chart – vodorovný)',
+        content: 'Stejná logika jako sloupcový, jen otočený. Výhodou jsou dlouhé popisky kategorií, které se vejdou na osu Y.',
+        code: 'Osa Y:     Zákazníci[Název]           ← kategorie (vodorovné pruhy)\nHodnoty:   SUM(Objednávky[Tržba])     ← délka pruhu\nLegenda:   Datum[Rok]                ← barevné rozdělení (volitelné)',
+        language: 'sql',
+        tip: 'Použij pruhový místo sloupcového, když máš více než 8 kategorií nebo dlouhé názvy.',
+      },
+      {
+        title: 'Koláčový / Prstencový graf (Pie / Donut)',
+        content: 'Zobrazuje podíl kategorií na celku. Vhodný pouze pro 2–6 kategorií. Prstencový (donut) je modernější varianta.',
+        code: 'Legenda:   Produkty[Kategorie]        ← kategorie (výseče)\nHodnoty:   SUM(Objednávky[Tržba])     ← velikost výseče\n\n-- Osa X zde NENÍ – koláčový nemá osu X!',
+        language: 'sql',
+        tip: 'Více než 6 kategorií = nečitelné. Raději seskupený sloupcový nebo treemap.',
+      },
+      {
+        title: 'Spojnicový graf (Line Chart)',
+        content: 'Sleduje vývoj hodnot v čase. Osa X musí být časová dimenze z datumové tabulky.',
+        code: 'Osa X:     Datum[MěsícNázev]          ← časová dimenze (z datumové tabulky!)\nHodnoty:   SUM(Objednávky[Tržba])     ← metrika, jejíž vývoj sleduješ\nLegenda:   Produkty[Kategorie]        ← každá kategorie = samostatná linie (volitelné)',
+        language: 'sql',
+        tip: 'Vždy používej dedikovanou datumovou tabulku, ne datum přímo z faktové tabulky.',
+      },
+      {
+        title: 'Plošný graf (Area Chart)',
+        content: 'Varianta spojnicového grafu se zabarvenou plochou pod linií. Zdůrazňuje objem, ne jen trend.',
+        code: 'Osa X:     Datum[Rok]                ← časová dimenze\nHodnoty:   SUM(Objednávky[Tržba])     ← objem / metrika\nLegenda:   Region[Název]             ← více plošných vrstev (volitelné)',
+        language: 'sql',
+        tip: 'Skládaný plošný (Stacked Area) ukazuje součet i složení zároveň.',
+      },
+      {
+        title: 'Rozptylový graf (Scatter Plot / Bubble Chart)',
+        content: 'Odhaluje korelaci (vztah) mezi dvěma metrikami. Každý bod = jedna entita. Třetí metrika = velikost bubliny.',
+        code: 'Osa X:     AVERAGE(Objednávky[Cena])  ← první metrika (horizontální)\nOsa Y:     SUM(Objednávky[Tržba])     ← druhá metrika (vertikální)\nDetail:    Zákazníci[Název]           ← co každý bod představuje\nVelikost:  COUNTROWS(Objednávky)      ← třetí metrika = velikost bublin (volitelné)',
+        language: 'sql',
+        tip: 'Osa X i Y MUSÍ být míry (ne kategorie). Přidej trend linii v záložce Analýza.',
+      },
+      {
+        title: 'Treemap – hierarchické podíly',
+        content: 'Vnořené obdélníky ukazují proporcionální podíly v hierarchii. Skvělý pro "které produkty/kategorie tvoří největší část tržeb".',
+        code: 'Skupina:      Produkty[Kategorie]     ← hlavní kategorie (vnější úroveň)\nPodrobnosti:  Produkty[Název]         ← podkategorie pro drill (volitelné)\nHodnoty:      SUM(Objednávky[Tržba])  ← velikost obdélníku',
+        language: 'sql',
+        tip: 'Kliknutím na obdélník provedeš drill do podkategorie (pokud máš vyplněno Podrobnosti).',
+      },
+      {
+        title: 'Vodopádový graf (Waterfall Chart)',
+        content: 'Zobrazuje postupné přírůstky a úbytky vedoucí k výsledku. Ideální pro finanční analýzy a bridge charty.',
+        code: 'Kategorie:  Datum[MěsícNázev]         ← kroky / faktory změny\nHodnoty:    SUM(Finance[Změna])        ← výška sloupce (kladná = přírůstek, záporná = úbytek)\nBreakdown:  Finance[TypNákladu]        ← druhá dimenze pro detail (volitelné)',
+        language: 'sql',
+        tip: 'Nastav první a poslední sloupec jako "Celkový" (Total) v záložce formátování – neukazují přírůstek, ale absolutní hodnotu.',
+      },
+      {
+        title: 'KPI Karta (Card / KPI)',
+        content: 'Zobrazí jedno prominentní číslo. Nejjednodušší a nejpoužívanější vizuál na každém dashboardu.',
+        code: 'Hodnoty:  [CelkovéTržby]              ← jedna míra nebo agregace\n\n-- KPI vizuál (rozšířený):\nHodnota:  [CelkovéTržby]              ← aktuální hodnota\nCíl:      [PlanovanéTržby]            ← cíl / target (zobrazí % splnění)',
+        language: 'sql',
+        tip: 'Novější vizuál "Karta (nová)" podporuje sparkline přímo v kartě od Power BI 2024.',
+      },
+      {
+        title: 'Matice (Matrix / Pivot Table)',
+        content: 'Křížová tabulka – porovnání hodnot přes dvě dimenze (řádky × sloupce). Ekvivalent pivot tabulky v Excelu.',
+        code: 'Řádky:     Produkty[Kategorie]        ← první dimenze (řádky)\nSloupce:   Datum[Rok]                 ← druhá dimenze (záhlaví sloupců)\nHodnoty:   SUM(Objednávky[Tržba])     ← co se zobrazí v buňkách průsečíku',
+        language: 'sql',
+        tip: 'Zapni podmíněné formátování → "Barevná škála" pro tepelnou mapu bez dalšího kódu.',
+      },
+    ],
+  },
+
+  {
+    id: 'rozptylovy-graf',
+    title: 'Rozptylový graf (Scatter Plot)',
+    category: 'grafy',
+    difficulty: 'Střední',
+    duration: '10 min',
+    description: 'Rozptylový graf odhaluje korelace mezi dvěma metrikami. Naučte se nastavit osy X a Y, velikost bublin i animaci přes čas.',
+    tags: ['scatter','rozptylový','korelace','bubliny','bubble chart','závislost'],
+    steps: [
+      {
+        title: 'Kdy použít rozptylový graf',
+        content: 'Rozptylový graf je ideální, když chceš zjistit, zda existuje vztah mezi dvěma metrikami. Například: "Zákazníci, kteří nakupují častěji, utrácejí celkově více?" Každý bod grafu = jedna entita (zákazník, produkt, region).',
+        tip: 'Scatter plot odpovídá na otázku: "Závisí X na Y?" – ne "Jak se X mění v čase?"',
+      },
+      {
+        title: 'Osa X a Osa Y – obě musí být míry',
+        content: 'Na rozdíl od sloupcového grafu musí být obě osy číselné metriky (míry nebo agregace). Kategorie na ose X zde nefunguje.',
+        code: 'Osa X:     AVERAGE(Objednávky[CenaZaKus])   ← průměrná cena produktu\nOsa Y:     SUM(Objednávky[Tržba])            ← celkové tržby\nDetail:    Zákazníci[Název]                  ← co každý bod představuje\n\n-- Špatně:\nOsa X:     Zákazníci[Segment]  ← kategorie na ose X nefunguje!',
+        language: 'sql',
+        tip: 'Pole "Detail" (Values) určuje, co každý bod reprezentuje – bez něj se body překrývají.',
+      },
+      {
+        title: 'Velikost bublin (Bubble Chart)',
+        content: 'Přidáním pole "Velikost" (Size) přejdeš ze scatter plotu na bubble chart – třetí dimenze vizualizována velikostí bubliny.',
+        code: 'Osa X:     AVERAGE(Objednávky[CenaZaKus])   ← první metrika\nOsa Y:     SUM(Objednávky[Tržba])            ← druhá metrika\nDetail:    Zákazníci[Název]                  ← identifikátor bodu\nVelikost:  COUNTROWS(Objednávky)             ← třetí metrika = velikost bubliny\nLegenda:   Zákazníci[Segment]                ← barva bublin (volitelné)',
+        language: 'sql',
+        tip: 'Velká bublina = vysoká hodnota třetí metriky. Skvělé pro portfolio analýzu.',
+      },
+      {
+        title: 'Play Axis – animace v čase',
+        content: 'Power BI umožňuje přidat "Play Axis" (časová osa) do rozptylového grafu. Výsledkem je animace, jak se body pohybují v čase – jako slavný Gapminder graf.',
+        tip: 'Přetáhni datumové pole (např. Datum[Rok]) do oblasti "Play Axis" v panelu vizualizace. Pak klikni na tlačítko ▶ pro spuštění animace.',
+      },
+      {
+        title: 'Trend linie a kvadranty',
+        content: 'V záložce "Analýza" (ikona lupy) u rozptylového grafu lze přidat: Trend linii (lineární regresi), Referenční linii (konstantní hodnota), Symetrické stínování (kvadranty).',
+        tip: 'Trend linie ukáže směr korelace. Pokud stoupá zleva doprava = pozitivní korelace (více X → více Y).',
+      },
+    ],
+  },
+
+  {
+    id: 'treemap-vizual',
+    title: 'Treemap – hierarchické podíly',
+    category: 'grafy',
+    difficulty: 'Střední',
+    duration: '8 min',
+    description: 'Treemap zobrazuje proporcionální podíly v hierarchické struktuře. Ideální pro „které produkty/kategorie tvoří největší část tržeb".',
+    tags: ['treemap','hierarchie','podíly','struktura','kategorie','vizualizace'],
+    steps: [
+      {
+        title: 'Treemap vs. koláčový – kdy co použít',
+        content: 'Koláčový graf: 2–6 kategorií, jednoduché podíly na celku. Treemap: více kategorií (7+), hierarchická struktura (kategorie → podkategorie). Treemap lépe využívá plochu a zvládne desítky položek.',
+        tip: 'Pravidlo: pokud máš více než 6 kategorií nebo chceš drill přes hierarchii, sáhni po treemap.',
+      },
+      {
+        title: 'Nastavení polí – Skupina, Podrobnosti, Hodnoty',
+        content: 'Treemap má tři klíčová pole. Skupina = horní úroveň (barva). Podrobnosti = druhá úroveň uvnitř skupiny (drill). Hodnoty = metrika určující velikost obdélníku.',
+        code: 'Skupina:      Produkty[Kategorie]     ← vnější úroveň (barva bloku)\nPodrobnosti:  Produkty[Název]         ← vnitřní úroveň (drill-down)\nHodnoty:      SUM(Objednávky[Tržba])  ← velikost obdélníku = výše tržeb\n\n-- Bez Podrobností: jeden obdélník za kategorii\n-- S Podrobnostmi:  uvnitř každého bloku jsou vnořené produkty',
+        language: 'sql',
+        tip: 'Větší obdélník = větší podíl na celkové metrice.',
+      },
+      {
+        title: 'Barva jako třetí dimenze',
+        content: 'V záložce Formát → Barvy dat lze nastavit podmíněné formátování: barva obdélníku = jiná metrika (např. marže). Tak uvidíš zároveň velikost (tržby) i kvalitu (marže) každé kategorie.',
+        tip: 'Zákazníci s velkou plochou (velké tržby) ale červenou barvou (nízká marže) jsou červenou vlajkou pro prioritizaci.',
+      },
+      {
+        title: 'Drilldown – procházení hierarchií',
+        content: 'Pokud máš vyplněno pole Podrobnosti, aktivuje se drilldown. Klikni na ikonu "drill" v záhlaví vizuálu (dvojitá šipka dolů) a pak klikni na obdélník skupiny – rozbalíš vnitřní produkty.',
+        tip: 'Ctrl+klik na více bloků = multi-select filtr pro zbytek reportu.',
+      },
+    ],
+  },
+
+  {
+    id: 'vodopady-graf',
+    title: 'Vodopádový graf (Waterfall Chart)',
+    category: 'grafy',
+    difficulty: 'Střední',
+    duration: '10 min',
+    description: 'Vodopádový graf zobrazuje, jak se hodnota mění krok za krokem – přírůstky a úbytky vedoucí k výsledku. Ideální pro finanční analýzy.',
+    tags: ['vodopád','waterfall','přírůstek','úbytek','bridge chart','finanční','změny'],
+    steps: [
+      {
+        title: 'Kdy použít vodopádový graf',
+        content: 'Vodopád je vhodný pro: finanční bridge charty (jak jsme se dostali od tržeb k zisku), měsíční srovnání (co přibylo a ubylo oproti minulému měsíci), analýzu faktorů (co nejvíce ovlivnilo výsledek).',
+        tip: 'Klíčová otázka pro waterfall: "Jak jsme se dostali z hodnoty A na hodnotu B a jaké kroky to způsobily?"',
+      },
+      {
+        title: 'Nastavení polí – Kategorie a Hodnoty',
+        content: 'Kategorie = kroky (osy X) – mohou být měsíce, produkty, faktory nákladů. Hodnoty = změna v každém kroku (kladná = zelený sloupec nahoru, záporná = červený sloupec dolů).',
+        code: 'Kategorie:  Datum[MěsícNázev]          ← kroky na ose X\nHodnoty:    [ZměnaTržeb]               ← výška kroku (kladná/záporná)\nBreakdown:  Finance[TypNákladu]         ← druhá dimenze pro detail (volitelné)\n\n-- Příklad míry ZměnaTržeb:\nZměnaTržeb =\n    [CelkovéTržby]\n    - CALCULATE([CelkovéTržby], PREVIOUSMONTH(Datum[Datum]))',
+        language: 'dax',
+        tip: 'Hodnoty musí být ZMĚNY, ne absolutní hodnoty – jinak graf nedává smysl.',
+      },
+      {
+        title: 'Nastavení "Celkový" vs "Přírůstek"',
+        content: 'Ve výchozím nastavení jsou všechny sloupce přírůstky (plovoucí). Kliknutím pravým tlačítkem na sloupec v grafu lze nastavit "Celkový" (Total) – sloupec pak stojí na nule a ukazuje absolutní hodnotu, ne změnu.',
+        tip: 'Typicky: první sloupec (startovní hodnota) = Celkový, poslední sloupec (výsledek) = Celkový, vše uprostřed = přírůstky.',
+      },
+      {
+        title: 'Barvy kladných a záporných hodnot',
+        content: 'V záložce Formát → Barvy dat nastavíš: Zvýšení (Increase) = zelená, Snížení (Decrease) = červená, Celkový (Total) = šedá nebo modrá. Výchozí barevné schéma je intuitivní a obvykle nepotřebuje úpravu.',
+        tip: 'Pokud grafu chybí barvy (vše stejná barva), zkontroluj, že máš vyplněno pole Hodnoty (ne Kategorie).',
+      },
+      {
+        title: 'Praktický příklad: Bridge chart tržeb',
+        content: 'Klasický bridge chart finančního reportu: startovní tržby (Leden), měsíční přírůstky/úbytky (Únor–Prosinec), cílová hodnota nebo výsledek (Celkem za rok).',
+        code: '-- Bridge chart: absolutní hodnoty za každý měsíc jako "celkový"\n-- nebo rozdíly oproti předchozímu měsíci jako "přírůstky"\n\n-- Míra pro měsíční změnu:\nMěsíčníZměna =\nVAR AktuálníMěsíc = [CelkovéTržby]\nVAR MinulýMěsíc   =\n    CALCULATE(\n        [CelkovéTržby],\n        PREVIOUSMONTH(Datum[Datum])\n    )\nRETURN\n    IF(\n        ISBLANK(MinulýMěsíc),\n        AktuálníMěsíc,          -- první měsíc = startovní hodnota\n        AktuálníMěsíc - MinulýMěsíc\n    )',
+        language: 'dax',
+        tip: 'Waterfall nefunguje dobře s více než 10–12 kroky – zvažuj agregaci (čtvrtletí místo měsíců).',
+      },
+    ],
+  },
 ];
 
 export const categories = [

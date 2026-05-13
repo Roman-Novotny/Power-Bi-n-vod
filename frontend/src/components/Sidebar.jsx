@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Sparkles, Wrench, Map,
-  AlertTriangle, Clock, Star, ChevronRight
+  AlertTriangle, Clock, Star, ChevronRight, BarChart2
 } from 'lucide-react';
 
 const nav = [
@@ -10,7 +10,8 @@ const nav = [
   { to: '/dax',      icon: Sparkles,       label: 'Generátor DAX' },
   { to: '/mquery',   icon: Wrench,         label: 'Power Query M' },
   { to: '/guide',    icon: Map,            label: 'Průvodce' },
-  { to: '/errors',   icon: AlertTriangle,  label: 'Chyby & Tipy' },
+  { to: '/errors',       icon: AlertTriangle,  label: 'Chyby & Tipy' },
+  { to: '/chart-advisor', icon: BarChart2,      label: 'Průvodce grafy' },
 ];
 
 const bottom = [
