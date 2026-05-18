@@ -96,7 +96,7 @@ async function callGemini(apiKey, userMessage) {
     const err = await res.json().catch(() => ({}));
     const msg = err?.error?.message || `HTTP ${res.status}`;
     if (res.status === 400 && msg.includes('API_KEY')) throw new Error('Neplatný API klíč. Zkontroluj ho v nastavení.');
-    if (res.status === 429) throw new Error('Překročen limit požadavků. Počkej minutu a zkus znovu (free plán: 15 req/min).');
+    if (res.status === 429) throw new Error('Překročen limit požadavků (free plán: 15 dotazů/min). Počkej ~60 sekund a zkus znovu – běžné používání limit nepřekročí.');
     throw new Error('Chyba Gemini API: ' + msg);
   }
 
