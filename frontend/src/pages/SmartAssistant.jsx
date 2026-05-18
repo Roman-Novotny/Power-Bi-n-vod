@@ -81,7 +81,7 @@ Pravidla:
 // ─── Gemini API call ───────────────────────────────────────────────────────────
 
 async function callGemini(apiKey, userMessage) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -150,7 +150,7 @@ function ApiKeySetup({ onSave }) {
           </div>
           <div>
             <h2 className="font-semibold text-gray-100">Nastav API klíč – je zdarma</h2>
-            <p className="text-xs text-gray-500">Google Gemini 1.5 Flash · 15 req/min · 1M tokenů/den</p>
+            <p className="text-xs text-gray-500">Google Gemini 2.0 Flash · 15 req/min · 1M tokenů/den</p>
           </div>
         </div>
 
@@ -518,7 +518,7 @@ export default function SmartAssistant() {
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-gray-600">Ctrl+Enter · Gemini 1.5 Flash · Zdarma</p>
+              <p className="text-[11px] text-gray-600">Ctrl+Enter · Gemini 2.0 Flash · Zdarma</p>
             </form>
           </div>
 
