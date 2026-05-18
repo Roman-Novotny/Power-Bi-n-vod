@@ -33,9 +33,9 @@ const TUTORIALS = {
   'dynamicke-prepinani-metrik': 'Dynamické přepínání metrik',
 };
 
-// ─── Gemini system prompt ──────────────────────────────────────────────────────
+// ─── System prompt ────────────────────────────────────────────────────────────
 
-const SYSTEM_PROMPT = `Jsi expert na Microsoft Power BI. Pomáháš českým uživatelům.
+const SYSTEM_PROMPT = `Jsi expert na Microsoft Power BI. Pomáháš českým uživatelům. Odpovídej VŽDY v JSON formátu.
 
 Když uživatel popíše co chce udělat, odpověz POUZE platným JSON objektem (bez markdown, bez backticks, čistý JSON):
 
@@ -78,36 +78,42 @@ Pravidla:
 - Buď konkrétní – přesné názvy záložek Power BI (Modelování, Formát, Analýza...)
 - Pokud uživatel nezmiňuje tabulku/sloupec, použij generické Tabulka[Hodnota]`;
 
-// ─── Gemini API call ───────────────────────────────────────────────────────────
+// ─── Groq API call ────────────────────────────────────────────────────────────
 
-async function callGemini(apiKey, userMessage) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-  const res = await fetch(url, {
+async function callAI(apiKey, userMessage) {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
     body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: SYSTEM_PROMPT + '\n\nDotaz uživatele: ' + userMessage }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 2048, responseMimeType: 'application/json' },
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userMessage },
+      ],
+      temperature: 0.2,
+      max_tokens: 2048,
+      response_format: { type: 'json_object' },
     }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     const msg = err?.error?.message || `HTTP ${res.status}`;
-    if (res.status === 400 && msg.includes('API_KEY')) throw new Error('Neplatný API klíč. Zkontroluj ho v nastavení.');
-    if (res.status === 429) throw new Error('Překročen limit požadavků (free plán: 15 dotazů/min). Počkej ~60 sekund a zkus znovu – běžné používání limit nepřekročí.');
-    throw new Error('Chyba Gemini API: ' + msg);
+    if (res.status === 401) throw new Error('Neplatný API klíč. Zkontroluj ho v nastavení.');
+    if (res.status === 429) throw new Error('Překročen limit (free plán: 30 dotazů/min). Počkej chvíli a zkus znovu.');
+    throw new Error('Chyba Groq API: ' + msg);
   }
 
   const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = data?.choices?.[0]?.message?.content;
   if (!text) throw new Error('Prázdná odpověď od AI.');
 
   try {
     return JSON.parse(text);
   } catch {
-    // Pokus o extrakci JSON z textu
     const match = text.match(/\{[\s\S]*\}/);
     if (match) return JSON.parse(match[0]);
     throw new Error('AI nevrátila platný JSON. Zkus dotaz přeformulovat.');
@@ -150,18 +156,18 @@ function ApiKeySetup({ onSave }) {
           </div>
           <div>
             <h2 className="font-semibold text-gray-100">Nastav API klíč – je zdarma</h2>
-            <p className="text-xs text-gray-500">Google Gemini 2.0 Flash · 15 req/min · 1M tokenů/den</p>
+            <p className="text-xs text-gray-500">Groq · Llama 3.3 70B · 30 req/min · zdarma</p>
           </div>
         </div>
 
         <div className="space-y-3 text-sm text-gray-400 leading-relaxed">
           <div className="flex items-start gap-2.5">
             <span className="w-5 h-5 rounded-full bg-purple-500/15 text-purple-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-            <p>Otevři <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1">Google AI Studio <ExternalLink size={11} /></a> a přihlas se Google účtem</p>
+            <p>Otevři <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1">console.groq.com/keys <ExternalLink size={11} /></a> a přihlas se (Google / GitHub)</p>
           </div>
           <div className="flex items-start gap-2.5">
             <span className="w-5 h-5 rounded-full bg-purple-500/15 text-purple-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-            <p>Klikni na <strong className="text-gray-200">"Create API key"</strong> → vyber nebo vytvoř projekt</p>
+            <p>Klikni na <strong className="text-gray-200">"Create API key"</strong> → pojmenuj ho (např. PowerBI)</p>
           </div>
           <div className="flex items-start gap-2.5">
             <span className="w-5 h-5 rounded-full bg-purple-500/15 text-purple-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
@@ -175,7 +181,7 @@ function ApiKeySetup({ onSave }) {
               type={show ? 'text' : 'password'}
               value={key}
               onChange={e => setKey(e.target.value)}
-              placeholder="AIzaSy..."
+              placeholder="gsk_..."
               className="input pr-10 font-mono text-sm"
             />
             <button
@@ -394,7 +400,9 @@ function ResultCard({ result }) {
 // ─── Main component ────────────────────────────────────────────────────────────
 
 export default function SmartAssistant() {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('pbi_gemini_key') || '');
+  const [apiKey, setApiKey] = useState(() =>
+    localStorage.getItem('pbi_ai_key') || localStorage.getItem('pbi_gemini_key') || ''
+  );
   const [showSettings, setShowSettings] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [input, setInput] = useState('');
@@ -403,12 +411,13 @@ export default function SmartAssistant() {
   const [error, setError] = useState('');
 
   const saveKey = (key) => {
-    localStorage.setItem('pbi_gemini_key', key);
+    localStorage.setItem('pbi_ai_key', key);
     setApiKey(key);
     setShowSettings(false);
   };
 
   const removeKey = () => {
+    localStorage.removeItem('pbi_ai_key');
     localStorage.removeItem('pbi_gemini_key');
     setApiKey('');
     setResult(null);
@@ -422,7 +431,7 @@ export default function SmartAssistant() {
     setError('');
     setResult(null);
     try {
-      const data = await callGemini(apiKey, input);
+      const data = await callAI(apiKey, input);
       setResult(data);
     } catch (err) {
       setError(err.message);
@@ -451,7 +460,7 @@ export default function SmartAssistant() {
             Chytrý asistent
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">AI</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Napiš co chceš udělat – Google Gemini ti odpoví</p>
+          <p className="text-gray-400 text-sm mt-1">Napiš co chceš udělat – Groq AI ti odpoví</p>
         </div>
         <button
           onClick={() => setShowSettings(s => !s)}
@@ -480,7 +489,7 @@ export default function SmartAssistant() {
             <button onClick={removeKey} className="btn-ghost text-xs text-red-400 hover:text-red-300">Odebrat</button>
           </div>
           <p className="text-[11px] text-gray-600">
-            Klíč z <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-purple-400">aistudio.google.com</a> · Uložen jen v prohlížeči · Zdarma: 15 req/min
+            Klíč z <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="text-purple-400">console.groq.com/keys</a> · Uložen jen v prohlížeči · Zdarma: 30 req/min
           </p>
         </div>
       )}
@@ -518,7 +527,7 @@ export default function SmartAssistant() {
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-gray-600">Ctrl+Enter · Gemini 2.0 Flash · Zdarma</p>
+              <p className="text-[11px] text-gray-600">Ctrl+Enter · Groq Llama 3.3 · Zdarma</p>
             </form>
           </div>
 
@@ -571,7 +580,7 @@ export default function SmartAssistant() {
                 ['📋', 'Průvodce krok za krokem'],
                 ['📚', 'Odkáže na návody'],
                 ['🧠', 'Rozumí volným větám česky'],
-                ['🔒', 'Klíč jen v prohlížeči, zdarma'],
+                ['🔒', 'Klíč jen v prohlížeči · Groq zdarma'],
               ].map(([icon, text], i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-sm">{icon}</span><span>{text}</span>
