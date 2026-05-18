@@ -15,7 +15,8 @@ const nav = [
 ];
 
 const bottom = [
-  { to: '/history',  icon: Clock,  label: 'Historie' },
+  { to: '/favorites', icon: Star,  label: 'Oblíbené' },
+  { to: '/history',   icon: Clock, label: 'Historie' },
 ];
 
 export default function Sidebar({ open, setOpen }) {

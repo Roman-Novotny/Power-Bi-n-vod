@@ -1090,7 +1090,7 @@ export const tutorials = [
   {
     id: 'pruvodce-co-kam',
     title: 'Průvodce: Co dát kam v každém grafu',
-    category: 'grafy',
+    category: 'Grafy',
     difficulty: 'Začátečník',
     duration: '20 min',
     description: 'Přehledný průvodce co přesně patří na osu X, Y, do legendy a hodnot pro každý typ grafu Power BI – s příklady polí.',
@@ -1179,7 +1179,7 @@ export const tutorials = [
   {
     id: 'rozptylovy-graf',
     title: 'Rozptylový graf (Scatter Plot)',
-    category: 'grafy',
+    category: 'Grafy',
     difficulty: 'Střední',
     duration: '10 min',
     description: 'Rozptylový graf odhaluje korelace mezi dvěma metrikami. Naučte se nastavit osy X a Y, velikost bublin i animaci přes čas.',
@@ -1220,7 +1220,7 @@ export const tutorials = [
   {
     id: 'treemap-vizual',
     title: 'Treemap – hierarchické podíly',
-    category: 'grafy',
+    category: 'Grafy',
     difficulty: 'Střední',
     duration: '8 min',
     description: 'Treemap zobrazuje proporcionální podíly v hierarchické struktuře. Ideální pro „které produkty/kategorie tvoří největší část tržeb".',
@@ -1254,7 +1254,7 @@ export const tutorials = [
   {
     id: 'vodopady-graf',
     title: 'Vodopádový graf (Waterfall Chart)',
-    category: 'grafy',
+    category: 'Grafy',
     difficulty: 'Střední',
     duration: '10 min',
     description: 'Vodopádový graf zobrazuje, jak se hodnota mění krok za krokem – přírůstky a úbytky vedoucí k výsledku. Ideální pro finanční analýzy.',
