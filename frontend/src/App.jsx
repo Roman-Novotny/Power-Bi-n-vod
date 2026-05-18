@@ -12,6 +12,7 @@ import ErrorsDatabase from './pages/ErrorsDatabase';
 import History from './pages/History';
 import ChartAdvisor from './pages/ChartAdvisor';
 import Favorites from './pages/Favorites';
+import SmartAssistant from './pages/SmartAssistant';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/history"         element={<History />} />
             <Route path="/chart-advisor"   element={<ChartAdvisor />} />
             <Route path="/favorites"       element={<Favorites />} />
+            <Route path="/assistant"       element={<SmartAssistant />} />
           </Routes>
         </Layout>
         <Toast />

@@ -1,17 +1,18 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Sparkles, Wrench, Map,
-  AlertTriangle, Clock, Star, ChevronRight, BarChart2
+  AlertTriangle, Clock, Star, ChevronRight, BarChart2, Brain
 } from 'lucide-react';
 
 const nav = [
-  { to: '/',         icon: Home,          label: 'Domů',           end: true },
-  { to: '/tutorials',icon: BookOpen,       label: 'Návody' },
-  { to: '/dax',      icon: Sparkles,       label: 'Generátor DAX' },
-  { to: '/mquery',   icon: Wrench,         label: 'Power Query M' },
-  { to: '/guide',    icon: Map,            label: 'Průvodce' },
-  { to: '/errors',       icon: AlertTriangle,  label: 'Chyby & Tipy' },
-  { to: '/chart-advisor', icon: BarChart2,      label: 'Průvodce grafy' },
+  { to: '/',          icon: Home,          label: 'Domů',            end: true },
+  { to: '/assistant', icon: Brain,          label: 'Chytrý asistent', highlight: true },
+  { to: '/tutorials', icon: BookOpen,       label: 'Návody' },
+  { to: '/dax',       icon: Sparkles,       label: 'Generátor DAX' },
+  { to: '/mquery',    icon: Wrench,         label: 'Power Query M' },
+  { to: '/guide',     icon: Map,            label: 'Průvodce' },
+  { to: '/errors',    icon: AlertTriangle,  label: 'Chyby & Tipy' },
+  { to: '/chart-advisor', icon: BarChart2,  label: 'Průvodce grafy' },
 ];
 
 const bottom = [
@@ -56,7 +57,7 @@ export default function Sidebar({ open, setOpen }) {
         {/* Main nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto no-scrollbar">
           <p className="px-3 mb-2 text-[10px] uppercase tracking-widest text-gray-600 font-semibold">Navigace</p>
-          {nav.map(({ to, icon: Icon, label, end }) => (
+          {nav.map(({ to, icon: Icon, label, end, highlight }) => (
             <NavLink
               key={to}
               to={to}
@@ -66,14 +67,19 @@ export default function Sidebar({ open, setOpen }) {
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group
                 ${isActive
                   ? 'bg-brand-500/15 text-brand-400 border border-brand-500/20'
-                  : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
+                  : highlight
+                    ? 'text-purple-300 bg-purple-500/8 border border-purple-500/15 hover:bg-purple-500/15'
+                    : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={17} className={isActive ? 'text-brand-400' : 'text-gray-500 group-hover:text-gray-300'} />
+                  <Icon size={17} className={isActive ? 'text-brand-400' : highlight ? 'text-purple-400' : 'text-gray-500 group-hover:text-gray-300'} />
                   <span className="flex-1">{label}</span>
+                  {highlight && !isActive && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">AI</span>
+                  )}
                   {isActive && <ChevronRight size={14} className="text-brand-400/60" />}
                 </>
               )}
