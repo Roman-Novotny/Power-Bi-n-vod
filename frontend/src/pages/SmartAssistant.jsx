@@ -40,30 +40,36 @@ const SYSTEM_PROMPT = `Jsi expert na Microsoft Power BI. Pomáháš českým už
 Když uživatel popíše co chce udělat, odpověz POUZE platným JSON objektem (bez markdown, bez backticks, čistý JSON):
 
 {
-  "summary": "Co jsem pochopil z dotazu – 1–2 věty",
+  "summary": "Co jsem pochopil z dotazu – 2–3 věty, konkrétní popis řešení",
   "chart": {
     "name": "Název doporučeného vizuálu Power BI",
     "icon": "jedno emoji reprezentující graf",
-    "reason": "Proč tento vizuál – 1 věta",
+    "reason": "Proč tento vizuál – 1–2 věty s argumenty proč je nejlepší volba",
     "fields": [
-      { "role": "Osa X", "value": "Datum[MěsícNázev]", "hint": "z datumové tabulky" }
+      { "role": "Osa X", "value": "Datum[MěsícNázev]", "hint": "z datumové tabulky, seřadit podle Datum[MěsícČíslo]" }
     ],
     "steps": [
-      "Krok 1 – **Záložka** → akce",
-      "Krok 2 – **Oblast** → co přetáhnout"
+      "Krok 1 – **Záložka Vizualizace** → klikni na ikonu sloupcového grafu",
+      "Krok 2 – **Oblast Osa X** → přetáhni Datum[MěsícNázev] z panelu Pole"
     ]
   },
   "dax": [
     {
       "name": "NázevMíry",
-      "code": "NázevMíry =\\nDAX kód s odsazením",
-      "explanation": "Co tato míra dělá – 1–2 věty",
-      "warning": null
+      "code": "NázevMíry =\\nVAR vysledek = CALCULATE(\\n    SUM(Tabulka[Hodnota]),\\n    FILTER(...)\\n)\\nRETURN vysledek",
+      "explanation": "Podrobné vysvětlení logiky míry – 2–4 věty. Popiš co každá funkce dělá a proč.",
+      "warning": "Upozornění na možné problémy nebo null pokud žádné"
     }
   ],
-  "tips": ["Praktický tip 1", "Praktický tip 2"],
-  "warnings": [],
-  "tutorialIds": ["id1", "id2"]
+  "tips": ["Konkrétní tip 1 s příkladem", "Tip 2 – např. jak vylepšit výkon nebo UX"],
+  "warnings": ["Varování pokud jsou datové nebo modelové závislosti"],
+  "tutorialIds": ["id1", "id2"],
+  "explanation": {
+    "why": "Proč jsem zvolil tento přístup – kontext a úvaha za rozhodnutím, 2–4 věty",
+    "how": "Jak to funguje pod povrchem – datový tok, kontext filtru, relace, 2–4 věty",
+    "pitfalls": ["Časté chyba 1 a jak se jí vyhnout", "Časté chyba 2"],
+    "alternatives": ["Alternativní přístup 1 – kdy ho použít místo doporučeného", "Alternativa 2"]
+  }
 }
 
 Dostupné tutorialIds (uváděj max 3 nejrelevantnější):
@@ -73,9 +79,10 @@ Pravidla:
 - Odpovídej VŽDY česky
 - "chart" = null pokud dotaz je jen o DAX výpočtu bez vizuálu
 - "dax" = [] pokud není potřeba žádný kód
-- V "code" piš skutečný funkční DAX kód s newlines jako \\n
-- V "steps" tučně (**text**) označuj názvy záložek, záložkách a UI prvků
-- Buď konkrétní – přesné názvy záložek Power BI (Modelování, Formát, Analýza...)
+- V "code" piš skutečný funkční DAX kód s odsazením a newlines jako \\n, používej VAR/RETURN pro složitější míry
+- V "steps" piš 5–8 konkrétních kroků, tučně (**text**) označuj názvy záložek a UI prvků
+- Buď co nejkonkrétnější – přesné názvy záložek Power BI (Modelování, Formát, Analýza, Vizualizace...)
+- Pole "explanation" vyplň vždy – je klíčové pro pochopení
 - Pokud uživatel nezmiňuje tabulku/sloupec, použij generické Tabulka[Hodnota]`;
 
 // ─── Groq API call ────────────────────────────────────────────────────────────
@@ -212,15 +219,17 @@ function ApiKeySetup({ onSave }) {
 
 function ResultCard({ result }) {
   if (!result) return null;
+  const [showExp, setShowExp] = useState(false);
 
-  const { summary, chart, dax, tips, warnings, tutorialIds } = result;
+  const { summary, chart, dax, tips, warnings, tutorialIds, explanation } = result;
 
-  // Build tutorial list from IDs
   const tutorials = (tutorialIds || [])
     .filter(id => TUTORIALS[id])
     .map(id => ({ id, label: TUTORIALS[id] }));
 
   const hasContent = chart || (dax && dax.length > 0);
+  const hasExp = explanation && (explanation.why || explanation.how ||
+    (explanation.pitfalls?.length) || (explanation.alternatives?.length));
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -393,6 +402,73 @@ function ResultCard({ result }) {
           </div>
         </div>
       )}
+
+      {/* Explanation toggle button */}
+      {hasExp && (
+        <button
+          onClick={() => setShowExp(s => !s)}
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-sm font-medium
+            ${showExp
+              ? 'bg-amber-500/8 border-amber-500/25 text-amber-300'
+              : 'bg-white/3 border-white/8 text-gray-400 hover:text-gray-200 hover:bg-white/6 hover:border-white/15'
+            }`}
+        >
+          <span className="flex items-center gap-2">
+            <Lightbulb size={14} className={showExp ? 'text-amber-400' : 'text-gray-500'} />
+            Vysvětlení – proč, jak a čeho se vyvarovat
+          </span>
+          <ChevronRight size={14} className={`transition-transform ${showExp ? 'rotate-90' : ''}`} />
+        </button>
+      )}
+
+      {/* Explanation content */}
+      {hasExp && showExp && (
+        <div className="card p-5 border border-amber-500/15 bg-amber-500/3 space-y-5 animate-fade-in">
+
+          {explanation.why && (
+            <div>
+              <p className="text-xs font-semibold text-amber-400/80 uppercase tracking-widest mb-2">Proč tento přístup</p>
+              <p className="text-sm text-gray-300 leading-relaxed">{explanation.why}</p>
+            </div>
+          )}
+
+          {explanation.how && (
+            <div>
+              <p className="text-xs font-semibold text-blue-400/80 uppercase tracking-widest mb-2">Jak to funguje</p>
+              <p className="text-sm text-gray-300 leading-relaxed">{explanation.how}</p>
+            </div>
+          )}
+
+          {explanation.pitfalls?.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-red-400/80 uppercase tracking-widest mb-2">Časté chyby</p>
+              <div className="space-y-1.5">
+                {explanation.pitfalls.map((p, i) => (
+                  <div key={i} className="flex gap-2 text-xs text-gray-300 leading-relaxed">
+                    <AlertTriangle size={12} className="text-red-400/70 flex-shrink-0 mt-0.5" />
+                    <span>{p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {explanation.alternatives?.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-purple-400/80 uppercase tracking-widest mb-2">Alternativy</p>
+              <div className="space-y-1.5">
+                {explanation.alternatives.map((a, i) => (
+                  <div key={i} className="flex gap-2 text-xs text-gray-300 leading-relaxed">
+                    <ChevronRight size={12} className="text-purple-400/70 flex-shrink-0 mt-0.5" />
+                    <span>{a}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }
